@@ -256,6 +256,7 @@ const G=[
 
 let sold={},selected={},isAdmin=false,currentRef="";
 const AK="jays115";
+const DB_PWD="jays115admin2026";
 
 function genRef(){
   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -267,8 +268,8 @@ function genRef(){
 async function loadSold(){
   try{const{data}=await sb.from('jays_sold').select('game_index');sold={};(data||[]).forEach(r=>{sold[r.game_index]=true})}catch(e){console.error(e)}
 }
-async function markSold(i){try{await sb.from('jays_sold').insert({game_index:i});sold[i]=true;delete selected[i];render()}catch(e){console.error(e)}}
-async function markUnsold(i){try{await sb.from('jays_sold').delete().eq('game_index',i);delete sold[i];render()}catch(e){console.error(e)}}
+async function markSold(i){try{const{data}=await sb.rpc("mark_sold",{idx:i,pwd:DB_PWD});if(data){sold[i]=true;delete selected[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
+async function markUnsold(i){try{const{data}=await sb.rpc("mark_unsold",{idx:i,pwd:DB_PWD});if(data){delete sold[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
 
 sb.channel('jays-sold-changes').on('postgres_changes',{event:'*',schema:'public',table:'jays_sold'},async()=>{await loadSold();render()}).subscribe();
 
