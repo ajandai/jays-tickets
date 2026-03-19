@@ -47,7 +47,9 @@ tr.selected{background:var(--gbg)}
 tr.selected:hover{background:#dcfce7}
 tr.sold{background:var(--sbg);cursor:default}
 tr.sold td{color:#999;text-decoration:line-through}
-tr.sold .sold-badge{text-decoration:none}
+tr.sold .sold-badge,tr.sold .req-badge{text-decoration:none}
+tr.requested-row{background:#FFFBEB}
+tr.requested-row:hover{background:#FEF3C7}
 .ck{width:18px;height:18px;accent-color:var(--navy);cursor:pointer}
 .date-col{font-weight:500;white-space:nowrap}
 .opp-col{font-weight:500}
@@ -63,16 +65,18 @@ tr.sold .sold-badge{text-decoration:none}
 .tag-jersey{background:#D1FAE5;color:#065F46}
 .tag-loonie{background:#FEF3C7;color:#92400E}
 .tag-fun{background:#FCE7F3;color:#9D174D}
+.tag-req{background:#FB923C;color:var(--white)}
 .sold-badge{display:inline-block;font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--st);color:var(--white);margin-left:6px}
+.req-badge{display:inline-block;font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:#FB923C;color:var(--white);margin-left:6px}
+.req-detail{font-size:11px;color:#9A3412;margin-left:6px;font-style:italic}
 .loading{text-align:center;padding:60px 20px;font-family:'Oswald',sans-serif;font-size:18px;color:var(--gray);letter-spacing:1px;text-transform:uppercase}
 .admin-toggle{position:fixed;bottom:16px;right:16px;z-index:200;background:var(--dark);color:var(--white);border:none;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;border-radius:6px;cursor:pointer;opacity:.25;transition:opacity .2s}
 .admin-toggle:hover{opacity:1}
 .admin-bar{background:#FEF3C7;border:2px solid #F59E0B;border-radius:8px;padding:12px 16px;margin:16px 0;text-align:center;font-size:14px;color:#92400E;font-weight:500}
 .admin-bar button{background:#F59E0B;color:var(--white);border:none;font-family:'Oswald',sans-serif;font-weight:600;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;margin-left:8px}
-/* MODAL OVERLAY */
 .modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,22,40,.6);z-index:500;justify-content:center;align-items:center;padding:20px}
 .modal-bg.open{display:flex}
-.modal{background:var(--white);border-radius:12px;max-width:520px;width:100%;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative}
+.modal{background:var(--white);border-radius:12px;max-width:520px;width:100%;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;max-height:90vh;overflow-y:auto}
 .modal h2{font-family:'Oswald',sans-serif;font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:4px}
 .modal .modal-sub{font-size:14px;color:var(--gray);margin-bottom:20px}
 .modal label{display:block;font-family:'Oswald',sans-serif;font-weight:500;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--dark);margin-bottom:4px;margin-top:14px}
@@ -89,8 +93,12 @@ tr.sold .sold-badge{text-decoration:none}
 .modal .btn-row{display:flex;gap:10px;margin-top:20px}
 .modal .btn-submit{flex:1;background:var(--navy);color:var(--white);font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:1px;text-transform:uppercase;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;transition:background .2s}
 .modal .btn-submit:hover{background:var(--royal)}
+.modal .btn-submit:disabled{background:#ccc;cursor:default}
 .modal .btn-cancel{background:var(--lgray);color:var(--gray);font-family:'Oswald',sans-serif;font-weight:500;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:12px 20px;border:none;border-radius:6px;cursor:pointer}
 .modal .error{color:var(--red);font-size:13px;margin-top:6px;display:none}
+.modal .success-msg{background:var(--gbg);border:2px solid var(--green);border-radius:8px;padding:16px;margin-top:16px;text-align:center;display:none}
+.modal .success-msg h3{font-family:'Oswald',sans-serif;color:var(--green);font-size:18px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.modal .success-msg p{font-size:13px;color:var(--dark)}
 .cta-footer{background:linear-gradient(135deg,var(--navy),var(--dark));color:var(--white);border-radius:10px;padding:32px 24px;margin:32px auto;max-width:880px;text-align:center}
 .cta-footer h2{font-family:'Oswald',sans-serif;font-weight:700;font-size:24px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
 .cta-footer p{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:4px}
@@ -104,6 +112,7 @@ tr.sold .sold-badge{text-decoration:none}
   .sticky-bar{padding:10px 12px}.sticky-bar .total{font-size:18px}
   .tag{font-size:8px;padding:1px 4px}
   .modal{padding:24px 18px}.modal .ref-box .ref-num{font-size:22px}
+  .req-detail{display:none}
 }
 </style>
 </head>
@@ -128,15 +137,14 @@ tr.sold .sold-badge{text-decoration:none}
   <strong>Step 1:</strong> Select your games below<br>
   <strong>Step 2:</strong> Hit "Send Request" and fill in your info<br>
   <strong>Step 3:</strong> You'll get a reference number — use it as the memo on your Interac E-Transfer<br>
-  <strong>Step 4:</strong> Once confirmed, tickets transferred via Ticketmaster
+  <strong>Step 4:</strong> Once payment confirmed, tickets transferred via Ticketmaster
 </div>
 <div class="content" id="app"><div class="loading">Loading games...</div></div>
 
-<!-- REQUEST MODAL -->
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h2>Confirm Your Request</h2>
-    <div class="modal-sub">Fill in your details below. You'll get a reference number to use as your E-Transfer memo.</div>
+    <div class="modal-sub">Fill in your details. You'll get a unique reference number to use as your E-Transfer memo.</div>
     <label>Your Name *</label>
     <input type="text" id="reqName" placeholder="Full name">
     <label>Email *</label>
@@ -145,14 +153,18 @@ tr.sold .sold-badge{text-decoration:none}
     <input type="tel" id="reqPhone" placeholder="(416) 555-1234">
     <div class="error" id="formError">Please enter your name and email.</div>
     <div class="order-summary" id="orderSummary"></div>
-    <div class="ref-box" id="refBox" style="display:none">
-      <div class="ref-label">Your Reference Number</div>
+    <div class="ref-box">
+      <div class="ref-label">Your E-Transfer Reference</div>
       <div class="ref-num" id="refNum"></div>
       <div class="ref-note">Use this as the MEMO on your Interac E-Transfer</div>
     </div>
-    <div class="btn-row">
+    <div class="success-msg" id="successMsg">
+      <h3>Request Submitted!</h3>
+      <p>Your request has been recorded. Please send your Interac E-Transfer with the reference number above as the memo. You'll also get a confirmation email.</p>
+    </div>
+    <div class="btn-row" id="btnRow">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-submit" id="btnSubmit" onclick="submitRequest()">Generate Reference & Send</button>
+      <button class="btn-submit" id="btnSubmit" onclick="submitRequest()">Submit Request & Send Email</button>
     </div>
   </div>
 </div>
@@ -254,24 +266,44 @@ const G=[
 {d:"2026-09-27",day:"Sun",opp:"Cincinnati Reds",time:"3:07 PM",sell:400,promo:"Fan Appreciation Weekend",tags:["fun"]}
 ];
 
-let sold={},selected={},isAdmin=false,currentRef="";
+let sold={},selected={},requested={},isAdmin=false,currentRef="";
 const AK="jays115";
 const DB_PWD="jays115admin2026";
 
 function genRef(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let r="JBT-";
-  for(let i=0;i<6;i++) r+=chars[Math.floor(Math.random()*chars.length)];
+  for(let i=0;i<6;i++) r+=c[Math.floor(Math.random()*c.length)];
   return r;
 }
 
 async function loadSold(){
   try{const{data}=await sb.from('jays_sold').select('game_index');sold={};(data||[]).forEach(r=>{sold[r.game_index]=true})}catch(e){console.error(e)}
 }
-async function markSold(i){try{const{data}=await sb.rpc("mark_sold",{idx:i,pwd:DB_PWD});if(data){sold[i]=true;delete selected[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
-async function markUnsold(i){try{const{data}=await sb.rpc("mark_unsold",{idx:i,pwd:DB_PWD});if(data){delete sold[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
 
-sb.channel('jays-sold-changes').on('postgres_changes',{event:'*',schema:'public',table:'jays_sold'},async()=>{await loadSold();render()}).subscribe();
+async function loadRequests(){
+  try{
+    const{data}=await sb.from('jays_requests').select('*');
+    requested={};
+    (data||[]).forEach(r=>{
+      if(!requested[r.game_index]) requested[r.game_index]=[];
+      requested[r.game_index].push({name:r.name,email:r.email,phone:r.phone,ref:r.ref_code,at:r.created_at});
+    });
+  }catch(e){console.error(e)}
+}
+
+async function markSold(i){
+  try{const{data}=await sb.rpc("mark_sold",{idx:i,pwd:DB_PWD});if(data){sold[i]=true;delete selected[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
+}
+async function markUnsold(i){
+  try{const{data}=await sb.rpc("mark_unsold",{idx:i,pwd:DB_PWD});if(data){delete sold[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
+}
+
+// Realtime: listen to both tables
+sb.channel('jays-changes')
+  .on('postgres_changes',{event:'*',schema:'public',table:'jays_sold'},async()=>{await loadSold();render()})
+  .on('postgres_changes',{event:'*',schema:'public',table:'jays_requests'},async()=>{await loadRequests();render()})
+  .subscribe();
 
 function fd(ds){const dt=new Date(ds+"T12:00:00"),m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return m[dt.getMonth()]+" "+dt.getDate()}
 function gm(ds){const dt=new Date(ds+"T12:00:00"),m=["","","","March","April","May","June","July","August","September"];return m[dt.getMonth()]+" 2026"}
@@ -291,16 +323,16 @@ function ts(i){if(sold[i])return;selected[i]?delete selected[i]:selected[i]=true
 function tsd(i){if(sold[i]){markUnsold(i)}else{markSold(i)}}
 
 function openModal(){
-  const sc=Object.keys(selected).length;
-  if(sc===0)return;
+  if(Object.keys(selected).length===0)return;
   currentRef=genRef();
   document.getElementById('refNum').textContent=currentRef;
-  document.getElementById('refBox').style.display='block';
   document.getElementById('formError').style.display='none';
+  document.getElementById('successMsg').style.display='none';
+  document.getElementById('btnRow').style.display='flex';
   document.getElementById('reqName').value='';
   document.getElementById('reqEmail').value='';
   document.getElementById('reqPhone').value='';
-  // Build order summary
+  document.getElementById('btnSubmit').disabled=false;
   const gs=Object.keys(selected).map(Number).sort((a,b)=>a-b).map(i=>G[i]);
   let t=0;
   let sh=gs.map(g=>{t+=g.sell;return`<div class="game-line"><span>${g.day}, ${fd(g.d)} — ${g.opp}</span><span>$${g.sell}</span></div>`}).join('');
@@ -310,18 +342,41 @@ function openModal(){
 }
 function closeModal(){document.getElementById('modalBg').classList.remove('open')}
 
-function submitRequest(){
+async function submitRequest(){
   const name=document.getElementById('reqName').value.trim();
   const email=document.getElementById('reqEmail').value.trim();
   const phone=document.getElementById('reqPhone').value.trim();
   if(!name||!email){document.getElementById('formError').style.display='block';return}
   document.getElementById('formError').style.display='none';
-  const gs=Object.keys(selected).map(Number).sort((a,b)=>a-b).map(i=>G[i]);
+  document.getElementById('btnSubmit').disabled=true;
+  document.getElementById('btnSubmit').textContent='Submitting...';
+
+  const idxs=Object.keys(selected).map(Number).sort((a,b)=>a-b);
+  const gs=idxs.map(i=>G[i]);
   let t=0;
+
+  // Save each game request to Supabase
+  const rows=idxs.map(i=>({game_index:i,ref_code:currentRef,name,email,phone:phone||null}));
+  try{
+    await sb.from('jays_requests').insert(rows);
+  }catch(e){console.error('Request save error:',e)}
+
+  // Show success
+  document.getElementById('successMsg').style.display='block';
+  document.getElementById('btnRow').style.display='none';
+
+  // Build and open email
   let lines=gs.map(g=>{t+=g.sell;return`${g.day}, ${fd(g.d)} - ${g.opp} (${g.time}) - $${g.sell}/pair`});
   let body=`Name: ${name}%0D%0AEmail: ${email}%0D%0A${phone?'Phone: '+phone+'%0D%0A':''}%0D%0AReference: ${currentRef}%0D%0A%0D%0AGames requested (Sec 115, Row 10, Seats 1%262):%0D%0A%0D%0A${lines.join('%0D%0A')}%0D%0A%0D%0ATotal: $${t.toLocaleString()} (${gs.length} game${gs.length>1?'s':''})%0D%0A%0D%0AI will E-Transfer $${t.toLocaleString()} with memo: ${currentRef}%0D%0A%0D%0APlease confirm availability.%0D%0A%0D%0AThanks,%0D%0A${name}`;
-  window.location.href=`mailto:${OWNER_EMAIL}?subject=Jays%20Tickets%20Request%20${currentRef}&body=${body}`;
-  closeModal();
+
+  setTimeout(()=>{
+    window.location.href=`mailto:${OWNER_EMAIL}?subject=Jays%20Tickets%20Request%20${currentRef}&body=${body}`;
+  },500);
+
+  // Reload requests to show "Requested" tags
+  await loadRequests();
+  selected={};
+  render();
 }
 
 function render(){
@@ -330,17 +385,28 @@ function render(){
   Object.keys(selected).forEach(i=>{st+=G[i].sell});
   let months={};
   G.forEach((g,i)=>{const m=gm(g.d);if(!months[m])months[m]=[];months[m].push({g,i})});
-  let h=`<div class="sticky-bar"><div><div class="total"><small>Total:</small> $${st.toLocaleString()}</div><div class="count">${sc} game${sc!==1?"s":""} selected${sc===0?" — tap any row to add":""}</div></div><button class="btn-email" onclick="openModal()" ${sc===0?"style='pointer-events:none;background:#ccc;color:#999'":""}">&#9993; Send Request</button></div>`;
-  if(isAdmin)h+=`<div class="admin-bar">Admin Mode — Click SOLD to mark games (syncs live) <button onclick="isAdmin=false;render()">Exit</button></div>`;
+
+  let h=`<div class="sticky-bar"><div><div class="total"><small>Total:</small> $${st.toLocaleString()}</div><div class="count">${sc} game${sc!==1?"s":""} selected${sc===0?" — tap any row to add":""}</div></div><button class="btn-email" onclick="openModal()" ${sc===0?"style='pointer-events:none;background:#ccc;color:#999'":""}>&#9993; Send Request</button></div>`;
+
+  if(isAdmin)h+=`<div class="admin-bar">Admin Mode — SOLD marks are live-synced. Requested games show who asked. <button onclick="isAdmin=false;render()">Exit</button></div>`;
+
   for(const month in months){
     h+=`<div class="month-section"><div class="month-header">${month}</div><table><thead><tr><th style="width:32px"></th><th>Date</th><th>Opponent</th><th>Time</th><th>Promo / Event</th><th style="text-align:right">Pair</th>${isAdmin?'<th style="width:66px"></th>':''}</tr></thead><tbody>`;
     months[month].forEach(({g,i})=>{
-      const iS=!!sold[i],iK=!!selected[i];
-      const cls=iS?"sold":(iK?"selected clickable":"clickable");
+      const iS=!!sold[i],iK=!!selected[i],iR=!!requested[i]&&!sold[i];
+      let cls=iS?"sold":(iK?"selected clickable":(iR?"requested-row clickable":"clickable"));
+
       h+=`<tr class="${cls}" ${!iS&&!isAdmin?`onclick="ts(${i})"`:""}>`;
       h+=`<td>${iS?"":`<input type="checkbox" class="ck" ${iK?"checked":""} onclick="event.stopPropagation();ts(${i})">`}</td>`;
       h+=`<td class="date-col">${g.day}, ${fd(g.d)}</td>`;
-      h+=`<td class="opp-col">${g.opp}${thtml(g)}${iS?'<span class="sold-badge">Sold</span>':''}</td>`;
+      h+=`<td class="opp-col">${g.opp}${thtml(g)}`;
+      if(iS) h+='<span class="sold-badge">Sold</span>';
+      else if(iR) h+='<span class="req-badge">Requested</span>';
+      if(isAdmin&&iR&&requested[i]){
+        const r=requested[i];
+        h+=`<span class="req-detail">${r.map(x=>`${x.name} (${x.ref})`).join(', ')}</span>`;
+      }
+      h+=`</td>`;
       h+=`<td class="time-col">${g.time}</td>`;
       h+=`<td class="promo-col">${g.promo||"—"}</td>`;
       h+=`<td class="price-col">$${g.sell.toLocaleString()}</td>`;
@@ -349,17 +415,20 @@ function render(){
     });
     h+="</tbody></table></div>";
   }
+
   h+=`<div class="cta-footer"><h2>Grab Your Games</h2><p>Select games above, then hit "Send Request" to lock in your dates.</p><p>Payment by Interac E-Transfer. Tickets transferred via Ticketmaster.</p><div class="cta-detail">First come, first served · All prices CAD per pair (2 tickets)<br>Section 115, Row 10, Seats 1 & 2 · Lower Baseline Reserved behind 1st base, aisle seats<br>Giveaways are for the first 15,000 fans — arrive early!</div></div>`;
   h+=`<div class="fine-print">Dates, times & promotions subject to change per MLB/Blue Jays. Section 115, Row 10, Seats 1 & 2 (aisle).<br>Lower Baseline Reserved · Prices per pair · First come, first served · SOLD = no longer available.</div>`;
   app.innerHTML=h;
 }
+
 document.getElementById("adminBtn").addEventListener("click",()=>{
   if(isAdmin){isAdmin=false;render();return}
   const c=prompt("Enter admin code:");
   if(c===AK){isAdmin=true;render()}
   else if(c!==null)alert("Wrong code.")
 });
-(async()=>{await loadSold();render()})();
+
+(async()=>{await loadSold();await loadRequests();render()})();
 </script>
 </body>
 </html>
