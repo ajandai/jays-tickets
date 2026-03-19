@@ -295,7 +295,8 @@ async function loadRequests(){
 async function markSold(i){
   try{const{data}=await sb.rpc("mark_sold",{idx:i,pwd:DB_PWD});if(data){sold[i]=true;delete selected[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
 }
-async function markUnsold(i){
+async function clearReq(i){try{const{data}=await sb.rpc("clear_requests",{idx:i,pwd:DB_PWD});if(data){delete requested[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
+  async function markUnsold(i){
   try{const{data}=await sb.rpc("mark_unsold",{idx:i,pwd:DB_PWD});if(data){delete sold[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
 }
 
