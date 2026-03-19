@@ -296,7 +296,7 @@ async function markSold(i){
   try{const{data}=await sb.rpc("mark_sold",{idx:i,pwd:DB_PWD});if(data){sold[i]=true;delete selected[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
 }
 async function clearReq(i){try{const{data}=await sb.rpc("clear_requests",{idx:i,pwd:DB_PWD});if(data){delete requested[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}}
-  async function markUnsold(i){
+async function markUnsold(i){
   try{const{data}=await sb.rpc("mark_unsold",{idx:i,pwd:DB_PWD});if(data){delete sold[i];render()}else{alert("Admin auth failed")}}catch(e){console.error(e)}
 }
 
@@ -392,7 +392,7 @@ function render(){
   if(isAdmin)h+=`<div class="admin-bar">Admin Mode — SOLD marks are live-synced. Requested games show who asked. <button onclick="isAdmin=false;render()">Exit</button></div>`;
 
   for(const month in months){
-    h+=`<div class="month-section"><div class="month-header">${month}</div><table><thead><tr><th style="width:32px"></th><th>Date</th><th>Opponent</th><th>Time</th><th>Promo / Event</th><th style="text-align:right">Pair</th>${isAdmin?'<th style="width:66px"></th>':''}</tr></thead><tbody>`;
+    h+=`<div class="month-section"><div class="month-header">${month}</div><table><thead><tr><th style="width:32px"></th><th>Date</th><th>Opponent</th><th>Time</th><th>Promo / Event</th><th style="text-align:right">Pair</th>${isAdmin?'<th style="width:120px"></th>':''}</tr></thead><tbody>`;
     months[month].forEach(({g,i})=>{
       const iS=!!sold[i],iK=!!selected[i],iR=!!requested[i]&&!sold[i];
       let cls=iS?"sold":(iK?"selected clickable":(iR?"requested-row clickable":"clickable"));
@@ -411,7 +411,7 @@ function render(){
       h+=`<td class="time-col">${g.time}</td>`;
       h+=`<td class="promo-col">${g.promo||"—"}</td>`;
       h+=`<td class="price-col">$${g.sell.toLocaleString()}</td>`;
-      if(isAdmin)h+=`<td><button onclick="event.stopPropagation();tsd(${i})" style="background:${iS?'#16A34A':'#DC2626'};color:#fff;border:none;font-family:Oswald;font-size:11px;letter-spacing:1px;padding:4px 8px;border-radius:3px;cursor:pointer">${iS?'UNDO':'SOLD'}</button></td>`;
+      if(isAdmin){h+=`<td>`;if(iR&&!iS)h+=`<button onclick="event.stopPropagation();clearReq(${i})" style="background:#F59E0B;color:#fff;border:none;font-family:Oswald;font-size:10px;letter-spacing:1px;padding:3px 6px;border-radius:3px;cursor:pointer;margin-right:4px" title="Clear request">CLEAR</button>`;h+=`<button onclick="event.stopPropagation();tsd(${i})" style="background:${iS?'#16A34A':'#DC2626'};color:#fff;border:none;font-family:Oswald;font-size:11px;letter-spacing:1px;padding:4px 8px;border-radius:3px;cursor:pointer">${iS?'UNDO':'SOLD'}</button></td>`;}
       h+="</tr>";
     });
     h+="</tbody></table></div>";
