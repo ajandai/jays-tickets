@@ -307,8 +307,8 @@ sb.channel('jays-changes')
   .subscribe();
 
 function fd(ds){const dt=new Date(ds+"T12:00:00"),m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return m[dt.getMonth()]+" "+dt.getDate()}
-function gm(ds){const dt=new Date(ds+"T12:00:00"),m=["","","","March","April","May","June","July","August","September"];return m[dt.getMonth()]+" 2026"}
-function thtml(g){
+function gm(ds){const dt=new Date(ds+"T12:00:00"),m=["January","February","March","April","May","June","July","August","September","October","November","December"];return m[dt.getMonth()]+" 2026"}
+  function thtml(g){
   let h="";
   if(g.tags.includes("opener"))h+='<span class="tag tag-opener">Opener</span>';
   if(g.tags.includes("canada"))h+='<span class="tag tag-canada">Canada Day</span>';
